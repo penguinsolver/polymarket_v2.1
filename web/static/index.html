@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polymarket Strategy Tester v2.0</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div style="display: flex; align-items: center;">
+                <h1>📊 Polymarket Strategy Tester</h1>
+                <span class="version-badge">v2.0</span>
+            </div>
+            <div class="controls">
+                <span class="runtime" id="runtime">00:00:00</span>
+                <button class="btn-start-all" onclick="startAll()">Start All</button>
+                <button class="btn-stop-all" onclick="stopAll()">Stop All</button>
+            </div>
+        </header>
+
+        <!-- Aggregate Metrics -->
+        <div class="aggregate-metrics">
+            <div class="metric-card">
+                <div class="metric-value" id="total-trades">0</div>
+                <div class="metric-label">Total Trades</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value pnl-positive" id="total-pnl">$0.00</div>
+                <div class="metric-label">Total P&L</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="total-roi">0%</div>
+                <div class="metric-label">ROI</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="bots-running">0/4</div>
+                <div class="metric-label">Bots Running</div>
+            </div>
+        </div>
+
+        <!-- Coin Cards -->
+        <h2 class="section-title">🪙 Crypto Bots</h2>
+        <div class="coin-grid">
+            <!-- BTC -->
+            <div class="coin-card" id="card-btc">
+                <div class="coin-header">
+                    <div class="coin-info">
+                        <div class="coin-icon btc">₿</div>
+                        <div>
+                            <div class="coin-name">Bitcoin</div>
+                            <div class="coin-ticker">BTC</div>
+                        </div>
+                    </div>
+                    <div class="coin-controls">
+                        <span class="status-indicator stopped" id="status-btc"></span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle-btc" onchange="toggleCoin('btc', this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="coin-stats">
+                    <div class="stat">
+                        <div class="stat-value" id="btc-trades">0</div>
+                        <div class="stat-label">Trades</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="btc-pnl">$0</div>
+                        <div class="stat-label">P&L</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="btc-orders">0</div>
+                        <div class="stat-label">Orders</div>
+                    </div>
+                </div>
+                <div class="prices-row">
+                    <div class="price-item">
+                        <div class="price-value up" id="btc-up-price">$--</div>
+                        <div class="price-label">UP</div>
+                    </div>
+                    <div class="price-item">
+                        <div class="price-value down" id="btc-down-price">$--</div>
+                        <div class="price-label">DOWN</div>
+                    </div>
+                    <div class="price-item">
+                        <div class="price-value" id="btc-countdown">--:--</div>
+                        <div class="price-label">Countdown</div>
+                    </div>
+                </div>
+                <a href="/btc" class="coin-link" style="margin-top: 15px;">View Dashboard →</a>
+            </div>
+
+            <!-- ETH -->
+            <div class="coin-card" id="card-eth">
+                <div class="coin-header">
+                    <div class="coin-info">
+                        <div class="coin-icon eth">Ξ</div>
+                        <div>
+                            <div class="coin-name">Ethereum</div>
+                            <div class="coin-ticker">ETH</div>
+                        </div>
+                    </div>
+                    <div class="coin-controls">
+                        <span class="status-indicator stopped" id="status-eth"></span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle-eth" onchange="toggleCoin('eth', this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="coin-stats">
+                    <div class="stat">
+                        <div class="stat-value" id="eth-trades">0</div>
+                        <div class="stat-label">Trades</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="eth-pnl">$0</div>
+                        <div class="stat-label">P&L</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="eth-orders">0</div>
+                        <div class="stat-label">Orders</div>
+                    </div>
+                </div>
+                <div class="prices-row">
+                    <div class="price-item">
+                        <div class="price-value up" id="eth-up-price">$--</div>
+                        <div class="price-label">UP</div>
+                    </div>
+                    <div class="price-item">
+                        <div class="price-value down" id="eth-down-price">$--</div>
+                        <div class="price-label">DOWN</div>
+                    </div>
+                    <div class="price-item">
+                        <div class="price-value" id="eth-countdown">--:--</div>
+                        <div class="price-label">Countdown</div>
+                    </div>
+                </div>
+                <a href="/eth" class="coin-link" style="margin-top: 15px;">View Dashboard →</a>
+            </div>
+
+            <!-- SOL -->
+            <div class="coin-card" id="card-sol">
+                <div class="coin-header">
+                    <div class="coin-info">
+                        <div class="coin-icon sol">◎</div>
+                        <div>
+                            <div class="coin-name">Solana</div>
+                            <div class="coin-ticker">SOL</div>
+                        </div>
+                    </div>
+                    <div class="coin-controls">
+                        <span class="status-indicator stopped" id="status-sol"></span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle-sol" onchange="toggleCoin('sol', this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="coin-stats">
+                    <div class="stat">
+                        <div class="stat-value" id="sol-trades">0</div>
+                        <div class="stat-label">Trades</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="sol-pnl">$0</div>
+                        <div class="stat-label">P&L</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="sol-orders">0</div>
+                        <div class="stat-label">Orders</div>
+                    </div>
+                </div>
+                <div class="prices-row">
+                    <div class="price-item">
+                        <div class="price-value up" id="sol-up-price">$--</div>
+                        <div class="price-label">UP</div>
+                    </div>
+                    <div class="price-item">
+                        <div class="price-value down" id="sol-down-price">$--</div>
+                        <div class="price-label">DOWN</div>
+                    </div>
+                    <div class="price-item">
+                        <div class="price-value" id="sol-countdown">--:--</div>
+                        <div class="price-label">Countdown</div>
+                    </div>
+                </div>
+                <a href="/sol" class="coin-link" style="margin-top: 15px;">View Dashboard →</a>
+            </div>
+
+            <!-- XRP -->
+            <div class="coin-card" id="card-xrp">
+                <div class="coin-header">
+                    <div class="coin-info">
+                        <div class="coin-icon xrp">✕</div>
+                        <div>
+                            <div class="coin-name">XRP</div>
+                            <div class="coin-ticker">XRP</div>
+                        </div>
+                    </div>
+                    <div class="coin-controls">
+                        <span class="status-indicator stopped" id="status-xrp"></span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="toggle-xrp" onchange="toggleCoin('xrp', this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="coin-stats">
+                    <div class="stat">
+                        <div class="stat-value" id="xrp-trades">0</div>
+                        <div class="stat-label">Trades</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="xrp-pnl">$0</div>
+                        <div class="stat-label">P&L</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="xrp-orders">0</div>
+                        <div class="stat-label">Orders</div>
+                    </div>
+                </div>
+                <div class="prices-row">
+                    <div class="price-item">
+                        <div class="price-value up" id="xrp-up-price">$--</div>
+                        <div class="price-label">UP</div>
+                    </div>
+                    <div class="price-item">
+                        <div class="price-value down" id="xrp-down-price">$--</div>
+                        <div class="price-label">DOWN</div>
+                    </div>
+                    <div class="price-item">
+                        <div class="price-value" id="xrp-countdown">--:--</div>
+                        <div class="price-label">Countdown</div>
+                    </div>
+                </div>
+                <a href="/xrp" class="coin-link" style="margin-top: 15px;">View Dashboard →</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+        let globalStartTime = null;
+        let runtimeInterval = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            connectWebSocket();
+        });
+
+        function connectWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}/ws`;
+
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = () => console.log('WebSocket connected');
+            ws.onmessage = (event) => updateDashboard(JSON.parse(event.data));
+            ws.onclose = () => setTimeout(connectWebSocket, 3000);
+            ws.onerror = (error) => console.error('WebSocket error:', error);
+        }
+
+        function updateDashboard(data) {
+            // Update aggregate metrics
+            if (data.aggregate) {
+                document.getElementById('total-trades').textContent = data.aggregate.total_trades;
+
+                const pnlEl = document.getElementById('total-pnl');
+                pnlEl.textContent = `$${data.aggregate.total_pnl.toFixed(2)}`;
+                pnlEl.className = 'metric-value ' + (data.aggregate.total_pnl >= 0 ? 'pnl-positive' : 'pnl-negative');
+
+                document.getElementById('total-roi').textContent = `${data.aggregate.roi}%`;
+                document.getElementById('bots-running').textContent = `${data.aggregate.coins_running}/${data.aggregate.coins_enabled}`;
+            }
+
+            // Update runtime
+            if (data.engine && data.engine.global_start_time) {
+                if (!globalStartTime || globalStartTime !== data.engine.global_start_time) {
+                    globalStartTime = data.engine.global_start_time;
+                    if (runtimeInterval) clearInterval(runtimeInterval);
+                    runtimeInterval = setInterval(updateRuntime, 1000);
+                    updateRuntime();
+                }
+            }
+
+            // Update each coin
+            const coins = ['btc', 'eth', 'sol', 'xrp'];
+            coins.forEach(coin => {
+                if (data.engine && data.engine.coins && data.engine.coins[coin]) {
+                    const coinData = data.engine.coins[coin];
+                    const card = document.getElementById(`card-${coin}`);
+                    const toggle = document.getElementById(`toggle-${coin}`);
+                    const status = document.getElementById(`status-${coin}`);
+
+                    if (coinData.is_running) {
+                        card.classList.add('running');
+                        toggle.checked = true;
+                        status.classList.remove('stopped');
+                        status.classList.add('running');
+                    } else {
+                        card.classList.remove('running');
+                        toggle.checked = false;
+                        status.classList.remove('running');
+                        status.classList.add('stopped');
+                    }
+
+                    document.getElementById(`${coin}-trades`).textContent = coinData.trades_count;
+                    document.getElementById(`${coin}-orders`).textContent = coinData.orders_count;
+
+                    if (coinData.pnl !== undefined) {
+                        const pnlEl = document.getElementById(`${coin}-pnl`);
+                        pnlEl.textContent = `$${coinData.pnl.toFixed(2)}`;
+                        pnlEl.className = 'stat-value ' + (coinData.pnl >= 0 ? 'pnl-positive' : 'pnl-negative');
+                    }
+                }
+
+                // Update prices
+                if (data.prices && data.prices[coin]) {
+                    const prices = data.prices[coin];
+                    document.getElementById(`${coin}-up-price`).textContent = prices.up ? `$${prices.up.toFixed(2)}` : '$--';
+                    document.getElementById(`${coin}-down-price`).textContent = prices.down ? `$${prices.down.toFixed(2)}` : '$--';
+
+                    if (prices.countdown !== undefined) {
+                        const mins = Math.floor(prices.countdown / 60);
+                        const secs = prices.countdown % 60;
+                        document.getElementById(`${coin}-countdown`).textContent =
+                            `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                    }
+                }
+            });
+        }
+
+        function updateRuntime() {
+            if (!globalStartTime) return;
+            const now = Date.now() / 1000;
+            const diff = Math.floor(now - globalStartTime);
+            if (diff < 0) return;
+
+            const hours = Math.floor(diff / 3600);
+            const minutes = Math.floor((diff % 3600) / 60);
+            const seconds = diff % 60;
+
+            document.getElementById('runtime').textContent =
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        async function toggleCoin(coin, enabled) {
+            const action = enabled ? 'start' : 'stop';
+            try {
+                await fetch(`/api/coins/${coin}/${action}`, { method: 'POST' });
+            } catch (error) {
+                console.error(`Error ${action}ing ${coin}:`, error);
+            }
+        }
+
+        async function startAll() {
+            try {
+                await fetch('/api/start-all', { method: 'POST' });
+            } catch (error) {
+                console.error('Error starting all:', error);
+            }
+        }
+
+        async function stopAll() {
+            try {
+                await fetch('/api/stop-all', { method: 'POST' });
+            } catch (error) {
+                console.error('Error stopping all:', error);
+            }
+        }
+    </script>
+</body>
+
+</html>
