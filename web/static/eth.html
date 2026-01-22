@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ETH Dashboard - Polymarket Strategy Tester v2.1</title>
     <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -203,6 +204,122 @@
             </table>
         </div>
 
+        <!-- Strategy Visualizations Section -->
+        <h2 class="section-title" style="margin-top: 30px; margin-bottom: 20px;">📈 Performance Visualizations</h2>
+
+        <!-- Charts Grid -->
+        <div class="charts-grid">
+            <!-- Option 1: ROI Horizontal Bar Chart -->
+            <div class="card chart-card">
+                <div class="card-title">ROI Comparison</div>
+                <div class="chart-container">
+                    <canvas id="roiBarChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Option 2: Cumulative P&L Line Chart -->
+            <div class="card chart-card">
+                <div class="card-title">Cumulative P&L Over Time</div>
+                <div class="chart-container">
+                    <canvas id="pnlLineChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Option 3: Win Rate Donut Charts -->
+            <div class="card chart-card">
+                <div class="card-title">Win Rates by Strategy</div>
+                <div class="donut-grid" id="donutCharts">
+                    <div class="donut-item">
+                        <canvas id="donut-undervalued_49"></canvas>
+                        <span class="donut-label">≤$0.49</span>
+                    </div>
+                    <div class="donut-item">
+                        <canvas id="donut-undervalued_48"></canvas>
+                        <span class="donut-label">≤$0.48</span>
+                    </div>
+                    <div class="donut-item">
+                        <canvas id="donut-undervalued_47"></canvas>
+                        <span class="donut-label">≤$0.47</span>
+                    </div>
+                    <div class="donut-item">
+                        <canvas id="donut-undervalued_46"></canvas>
+                        <span class="donut-label">≤$0.46</span>
+                    </div>
+                    <div class="donut-item">
+                        <canvas id="donut-momentum_51"></canvas>
+                        <span class="donut-label">≥$0.51</span>
+                    </div>
+                    <div class="donut-item">
+                        <canvas id="donut-momentum_52"></canvas>
+                        <span class="donut-label">≥$0.52</span>
+                    </div>
+                    <div class="donut-item">
+                        <canvas id="donut-momentum_53"></canvas>
+                        <span class="donut-label">≥$0.53</span>
+                    </div>
+                    <div class="donut-item">
+                        <canvas id="donut-momentum_54"></canvas>
+                        <span class="donut-label">≥$0.54</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Option 5: Grouped Bar Chart (Undervalued vs Momentum) -->
+            <div class="card chart-card">
+                <div class="card-title">Undervalued vs Momentum</div>
+                <div class="chart-container">
+                    <canvas id="groupedBarChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Option 4: Sparklines Table -->
+        <div class="card" style="margin-top: 20px;">
+            <div class="card-title">P&L Sparklines (Last 10 Trades per Variant)</div>
+            <div class="sparklines-grid" id="sparklinesContainer">
+                <div class="sparkline-row">
+                    <span class="sparkline-label">Undervalued ≤$0.49</span>
+                    <div class="sparkline-chart"><canvas id="sparkline-undervalued_49"></canvas></div>
+                    <span class="sparkline-value" id="sparkline-value-undervalued_49">$0.00</span>
+                </div>
+                <div class="sparkline-row">
+                    <span class="sparkline-label">Undervalued ≤$0.48</span>
+                    <div class="sparkline-chart"><canvas id="sparkline-undervalued_48"></canvas></div>
+                    <span class="sparkline-value" id="sparkline-value-undervalued_48">$0.00</span>
+                </div>
+                <div class="sparkline-row">
+                    <span class="sparkline-label">Undervalued ≤$0.47</span>
+                    <div class="sparkline-chart"><canvas id="sparkline-undervalued_47"></canvas></div>
+                    <span class="sparkline-value" id="sparkline-value-undervalued_47">$0.00</span>
+                </div>
+                <div class="sparkline-row">
+                    <span class="sparkline-label">Undervalued ≤$0.46</span>
+                    <div class="sparkline-chart"><canvas id="sparkline-undervalued_46"></canvas></div>
+                    <span class="sparkline-value" id="sparkline-value-undervalued_46">$0.00</span>
+                </div>
+                <div class="sparkline-row">
+                    <span class="sparkline-label">Momentum ≥$0.51</span>
+                    <div class="sparkline-chart"><canvas id="sparkline-momentum_51"></canvas></div>
+                    <span class="sparkline-value" id="sparkline-value-momentum_51">$0.00</span>
+                </div>
+                <div class="sparkline-row">
+                    <span class="sparkline-label">Momentum ≥$0.52</span>
+                    <div class="sparkline-chart"><canvas id="sparkline-momentum_52"></canvas></div>
+                    <span class="sparkline-value" id="sparkline-value-momentum_52">$0.00</span>
+                </div>
+                <div class="sparkline-row">
+                    <span class="sparkline-label">Momentum ≥$0.53</span>
+                    <div class="sparkline-chart"><canvas id="sparkline-momentum_53"></canvas></div>
+                    <span class="sparkline-value" id="sparkline-value-momentum_53">$0.00</span>
+                </div>
+                <div class="sparkline-row">
+                    <span class="sparkline-label">Momentum ≥$0.54</span>
+                    <div class="sparkline-chart"><canvas id="sparkline-momentum_54"></canvas></div>
+                    <span class="sparkline-value" id="sparkline-value-momentum_54">$0.00</span>
+                </div>
+            </div>
+        </div>
+
         <!-- Open Orders -->
         <div class="card" style="margin-top: 30px;">
             <div class="section-header">
@@ -371,6 +488,7 @@
                 // Entry window constants (in seconds)
                 const ENTRY_START = 1230;  // 20:30
                 const ENTRY_END = 930;     // 15:30
+                const WINDOW_DURATION = ENTRY_START - ENTRY_END; // 5 minutes = 300s
 
                 // Calculate entry window countdown and status
                 const entryIcon = document.getElementById('entry-icon');
@@ -379,6 +497,7 @@
                 const entryStatus = document.getElementById('entry-status');
 
                 if (countdown > ENTRY_START) {
+                    // Waiting for entry window to open
                     const timeUntilOpen = countdown - ENTRY_START;
                     const waitMins = Math.floor(timeUntilOpen / 60);
                     const waitSecs = timeUntilOpen % 60;
@@ -387,6 +506,7 @@
                     entryCountdown.textContent = `${waitMins.toString().padStart(2, '0')}:${waitSecs.toString().padStart(2, '0')}`;
                     entryStatus.className = 'entry-status-indicator status-waiting';
                 } else if (countdown >= ENTRY_END && countdown <= ENTRY_START) {
+                    // INSIDE entry window - placing orders
                     const timeRemaining = countdown - ENTRY_END;
                     const windowMins = Math.floor(timeRemaining / 60);
                     const windowSecs = timeRemaining % 60;
@@ -395,6 +515,7 @@
                     entryCountdown.textContent = `${windowMins.toString().padStart(2, '0')}:${windowSecs.toString().padStart(2, '0')}`;
                     entryStatus.className = 'entry-status-indicator status-active';
                 } else {
+                    // Entry window closed
                     entryIcon.textContent = '🔴';
                     entryText.textContent = 'Window Closed';
                     entryCountdown.textContent = '00:00';
@@ -419,6 +540,7 @@
         function updateVariantMetrics(variantMetrics) {
             if (!variantMetrics) return;
 
+            // All 8 variants to update
             const variants = [
                 'undervalued_49', 'undervalued_48', 'undervalued_47', 'undervalued_46',
                 'momentum_51', 'momentum_52', 'momentum_53', 'momentum_54'
@@ -440,12 +562,16 @@
                 setEl('volume', `$${v.total_invested.toFixed(2)}`);
                 setEl('roi', `${v.roi}%`);
 
+                // P&L with color
                 const pnlEl = document.getElementById(`${variant}-pnl`);
                 if (pnlEl) {
                     pnlEl.textContent = `$${v.total_pnl.toFixed(2)}`;
                     pnlEl.className = v.total_pnl >= 0 ? 'pnl-positive' : 'pnl-negative';
                 }
             });
+
+            // Update all charts with new metrics
+            updateCharts(variantMetrics);
         }
 
         function updateOrders(orders, total) {
@@ -670,6 +796,325 @@
                 console.error('Error stopping engine:', error);
             }
         }
+
+        // ==================== CHART INITIALIZATION ====================
+
+        let roiBarChart = null;
+        let pnlLineChart = null;
+        let groupedBarChart = null;
+        let donutCharts = {};
+        let sparklineCharts = {};
+        let pnlHistory = [];
+        let tradeCount = 0;
+
+        const VARIANTS = [
+            'undervalued_49', 'undervalued_48', 'undervalued_47', 'undervalued_46',
+            'momentum_51', 'momentum_52', 'momentum_53', 'momentum_54'
+        ];
+
+        const UNDERVALUED_COLORS = ['#10b981', '#34d399', '#6ee7b7', '#a7f3d0'];
+        const MOMENTUM_COLORS = ['#3b82f6', '#60a5fa', '#93c5fd', '#bfdbfe'];
+
+        function initCharts() {
+            initRoiBarChart();
+            initPnlLineChart();
+            initGroupedBarChart();
+            initDonutCharts();
+            initSparklines();
+        }
+
+        function initRoiBarChart() {
+            const ctx = document.getElementById('roiBarChart');
+            if (!ctx) return;
+
+            roiBarChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['≤$0.49', '≤$0.48', '≤$0.47', '≤$0.46', '≥$0.51', '≥$0.52', '≥$0.53', '≥$0.54'],
+                    datasets: [{
+                        label: 'ROI %',
+                        data: [0, 0, 0, 0, 0, 0, 0, 0],
+                        backgroundColor: [...UNDERVALUED_COLORS, ...MOMENTUM_COLORS],
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { callback: v => v + '%' } },
+                        y: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function initPnlLineChart() {
+            const ctx = document.getElementById('pnlLineChart');
+            if (!ctx) return;
+
+            pnlLineChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: VARIANTS.map((v, i) => ({
+                        label: v.replace('_', ' '),
+                        data: [],
+                        borderColor: i < 4 ? UNDERVALUED_COLORS[i] : MOMENTUM_COLORS[i - 4],
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        pointRadius: 0
+                    }))
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { intersect: false, mode: 'index' },
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 8 } } },
+                    scales: {
+                        x: { display: true, grid: { display: false } },
+                        y: { grid: { color: '#f1f5f9' }, ticks: { callback: v => '$' + v.toFixed(2) } }
+                    }
+                }
+            });
+        }
+
+        function initGroupedBarChart() {
+            const ctx = document.getElementById('groupedBarChart');
+            if (!ctx) return;
+
+            groupedBarChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Trades', 'Wins', 'Losses', 'P&L'],
+                    datasets: [
+                        { label: 'Undervalued', data: [0, 0, 0, 0], backgroundColor: '#10b981', borderRadius: 4 },
+                        { label: 'Momentum', data: [0, 0, 0, 0], backgroundColor: '#3b82f6', borderRadius: 4 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { grid: { color: '#f1f5f9' } }
+                    }
+                }
+            });
+        }
+
+        function initDonutCharts() {
+            VARIANTS.forEach((variant, i) => {
+                const ctx = document.getElementById(`donut-${variant}`);
+                if (!ctx) return;
+
+                const color = i < 4 ? UNDERVALUED_COLORS[i] : MOMENTUM_COLORS[i - 4];
+                donutCharts[variant] = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Wins', 'Losses', 'Pending'],
+                        datasets: [{
+                            data: [0, 0, 1],
+                            backgroundColor: [color, '#ef4444', '#e2e8f0'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        cutout: '65%',
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            });
+        }
+
+        function initSparklines() {
+            VARIANTS.forEach((variant, i) => {
+                const ctx = document.getElementById(`sparkline-${variant}`);
+                if (!ctx) return;
+
+                const color = i < 4 ? UNDERVALUED_COLORS[i] : MOMENTUM_COLORS[i - 4];
+                sparklineCharts[variant] = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: Array(10).fill(''),
+                        datasets: [{
+                            data: Array(10).fill(0),
+                            borderColor: color,
+                            backgroundColor: color + '20',
+                            fill: true,
+                            borderWidth: 2,
+                            tension: 0.4,
+                            pointRadius: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: { x: { display: false }, y: { display: false } }
+                    }
+                });
+            });
+        }
+
+        // ==================== CHART UPDATE FUNCTIONS ====================
+
+        function updateCharts(variantMetrics, trades) {
+            if (!variantMetrics) return;
+
+            updateRoiBarChart(variantMetrics);
+            updateGroupedBarChart(variantMetrics);
+            updateDonutCharts(variantMetrics);
+            updatePnlLineChart(variantMetrics, trades);
+            updateSparklines(variantMetrics);
+            applyHeatmapColors(variantMetrics);
+        }
+
+        function updateRoiBarChart(metrics) {
+            if (!roiBarChart) return;
+            const data = VARIANTS.map(v => metrics[v]?.roi || 0);
+            roiBarChart.data.datasets[0].data = data;
+            roiBarChart.update('none');
+        }
+
+        function updateGroupedBarChart(metrics) {
+            if (!groupedBarChart) return;
+
+            let uTrades = 0, uWins = 0, uLosses = 0, uPnl = 0;
+            let mTrades = 0, mWins = 0, mLosses = 0, mPnl = 0;
+
+            VARIANTS.forEach(v => {
+                const m = metrics[v];
+                if (!m) return;
+                if (v.startsWith('undervalued')) {
+                    uTrades += m.total_trades || 0;
+                    uWins += m.wins || 0;
+                    uLosses += m.losses || 0;
+                    uPnl += m.total_pnl || 0;
+                } else {
+                    mTrades += m.total_trades || 0;
+                    mWins += m.wins || 0;
+                    mLosses += m.losses || 0;
+                    mPnl += m.total_pnl || 0;
+                }
+            });
+
+            groupedBarChart.data.datasets[0].data = [uTrades, uWins, uLosses, uPnl];
+            groupedBarChart.data.datasets[1].data = [mTrades, mWins, mLosses, mPnl];
+            groupedBarChart.update('none');
+        }
+
+        function updateDonutCharts(metrics) {
+            VARIANTS.forEach(v => {
+                const chart = donutCharts[v];
+                if (!chart) return;
+                const m = metrics[v];
+                if (!m) return;
+
+                const wins = m.wins || 0;
+                const losses = m.losses || 0;
+                const pending = m.pending || 0;
+                const total = wins + losses + pending;
+
+                chart.data.datasets[0].data = total > 0 ? [wins, losses, pending] : [0, 0, 1];
+                chart.update('none');
+            });
+        }
+
+        function updatePnlLineChart(metrics, trades) {
+            if (!pnlLineChart) return;
+
+            // Track cumulative P&L over time
+            const currentTotal = VARIANTS.reduce((sum, v) => sum + (metrics[v]?.total_trades || 0), 0);
+            if (currentTotal > tradeCount) {
+                tradeCount = currentTotal;
+                const timestamp = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+                pnlHistory.push({ time: timestamp, metrics: {} });
+                VARIANTS.forEach(v => {
+                    pnlHistory[pnlHistory.length - 1].metrics[v] = metrics[v]?.total_pnl || 0;
+                });
+
+                // Keep last 20 data points
+                if (pnlHistory.length > 20) pnlHistory.shift();
+
+                // Update chart
+                pnlLineChart.data.labels = pnlHistory.map(h => h.time);
+                VARIANTS.forEach((v, i) => {
+                    pnlLineChart.data.datasets[i].data = pnlHistory.map(h => h.metrics[v] || 0);
+                });
+                pnlLineChart.update('none');
+            }
+        }
+
+        function updateSparklines(metrics) {
+            VARIANTS.forEach(v => {
+                const chart = sparklineCharts[v];
+                const valueEl = document.getElementById(`sparkline-value-${v}`);
+                if (!chart) return;
+
+                const m = metrics[v];
+                const pnl = m?.total_pnl || 0;
+
+                // Add latest P&L value
+                const data = chart.data.datasets[0].data.slice(1);
+                data.push(pnl);
+                chart.data.datasets[0].data = data;
+                chart.update('none');
+
+                if (valueEl) {
+                    valueEl.textContent = `$${pnl.toFixed(2)}`;
+                    valueEl.className = 'sparkline-value ' + (pnl >= 0 ? 'pnl-positive' : 'pnl-negative');
+                }
+            });
+        }
+
+        // Option 6: Color-code table cells (heatmap)
+        function applyHeatmapColors(metrics) {
+            VARIANTS.forEach(v => {
+                const m = metrics[v];
+                if (!m) return;
+
+                // P&L color
+                const pnlEl = document.getElementById(`${v}-pnl`);
+                if (pnlEl) {
+                    const pnl = m.total_pnl || 0;
+                    if (pnl > 0) pnlEl.style.backgroundColor = 'rgba(16, 185, 129, 0.15)';
+                    else if (pnl < 0) pnlEl.style.backgroundColor = 'rgba(239, 68, 68, 0.15)';
+                    else pnlEl.style.backgroundColor = 'transparent';
+                }
+
+                // Win rate color
+                const winrateEl = document.getElementById(`${v}-winrate`);
+                if (winrateEl) {
+                    const wr = m.win_rate || 0;
+                    if (wr >= 60) winrateEl.style.backgroundColor = 'rgba(16, 185, 129, 0.15)';
+                    else if (wr >= 40) winrateEl.style.backgroundColor = 'rgba(251, 191, 36, 0.15)';
+                    else if (wr > 0) winrateEl.style.backgroundColor = 'rgba(239, 68, 68, 0.15)';
+                    else winrateEl.style.backgroundColor = 'transparent';
+                }
+
+                // ROI color
+                const roiEl = document.getElementById(`${v}-roi`);
+                if (roiEl) {
+                    const roi = m.roi || 0;
+                    if (roi > 0) roiEl.style.backgroundColor = 'rgba(16, 185, 129, 0.15)';
+                    else if (roi < 0) roiEl.style.backgroundColor = 'rgba(239, 68, 68, 0.15)';
+                    else roiEl.style.backgroundColor = 'transparent';
+                }
+            });
+        }
+
+        // Initialize charts after DOM loads
+        document.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+        });
     </script>
 </body>
 

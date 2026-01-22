@@ -854,4 +854,117 @@ button:active {
     .trades-tape {
         max-height: 300px;
     }
+
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ==================== CHARTS SECTION ==================== */
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    margin-bottom: 20px;
+}
+
+.chart-card {
+    min-height: 280px;
+}
+
+.chart-container {
+    height: 220px;
+    position: relative;
+}
+
+/* Donut Charts Grid */
+.donut-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    padding: 10px;
+}
+
+.donut-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.donut-item canvas {
+    width: 60px !important;
+    height: 60px !important;
+}
+
+.donut-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+/* Sparklines */
+.sparklines-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    padding: 10px;
+}
+
+.sparkline-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: var(--bg-primary);
+    border-radius: 10px;
+    transition: all 0.2s;
+}
+
+.sparkline-row:hover {
+    background: #f1f5f9;
+}
+
+.sparkline-label {
+    min-width: 130px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.sparkline-chart {
+    flex: 1;
+    height: 32px;
+    min-width: 100px;
+}
+
+.sparkline-chart canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.sparkline-value {
+    min-width: 60px;
+    text-align: right;
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+/* Collapsed table */
+.table-container.collapsed {
+    max-height: 320px;
+}
+
+.table-info {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin-top: 12px;
+}
+
+/* Heatmap cell styling */
+.trades-table td {
+    transition: background-color 0.3s ease;
+    border-radius: 4px;
 }

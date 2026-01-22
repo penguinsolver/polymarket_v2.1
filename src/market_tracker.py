@@ -203,11 +203,24 @@ class MarketTracker:
         return None
     
     def get_t1_market(self, coin_type: CoinType) -> Optional[MarketWindow]:
-        """Get the t+1 market (next market to become active)."""
+        """Get the t+1 market (next market to become active).
+        
+        IMPORTANT: Once countdown drops below 900 seconds (15:00), we skip that
+        market and return the next one. This ensures we always track a market
+        where the entry window (20:30 to 15:30) is still relevant.
+        
+        The switching logic:
+        - countdown > 15:00 (900s): This is a valid T+1 to track
+        - countdown <= 15:00 (900s): Entry window closed, skip to next market
+        """
         now = int(time.time())
         for market in self._markets.get(coin_type, []):
             if market.start_time > now:
-                return market
+                countdown = market.start_time - now
+                # Skip markets where countdown is below 15 minutes (entry window fully closed)
+                # This ensures we switch to the next market for the next entry opportunity
+                if countdown > 900:  # > 15:00
+                    return market
         return None
     
     def get_t2_market(self, coin_type: CoinType) -> Optional[MarketWindow]:

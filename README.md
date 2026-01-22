@@ -9,6 +9,7 @@ Multi-coin paper trading dashboard for Polymarket 15-minute crypto markets.
 - **Paginated Tables**: Show 8 rows with expand option
 - **Export Functions**: TXT and Markdown formats
 - **Strategy Comparison**: Undervalued vs Momentum
+- **Performance Visualizations**: ROI charts, P&L line graphs, Win Rate donuts, Sparklines
 
 ## Quick Start
 
