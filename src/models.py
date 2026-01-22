@@ -93,10 +93,15 @@ class PaperOrder:
     filled_size: float = 0.0
     created_at: float = field(default_factory=time.time)
     updated_at: float = field(default_factory=time.time)
+    # v2.1 additions
+    strategy_variant: str = ""  # e.g., "undervalued_48"
+    market_start_time: int = 0  # Unix timestamp of market start
+    limit_price: float = 0.0    # Target fill price for second-chance fill
     
     @classmethod
     def create(cls, strategy: StrategyType, coin_type: CoinType, market_slug: str,
-               outcome: Outcome, price: float, size: float) -> "PaperOrder":
+               outcome: Outcome, price: float, size: float, 
+               strategy_variant: str = "", market_start_time: int = 0) -> "PaperOrder":
         return cls(
             id=str(uuid.uuid4()),
             strategy=strategy,
@@ -105,6 +110,9 @@ class PaperOrder:
             outcome=outcome,
             price=price,
             size=size,
+            strategy_variant=strategy_variant or f"{strategy.value}",
+            market_start_time=market_start_time,
+            limit_price=price,
         )
     
     def fill(self, size: float) -> None:
@@ -123,6 +131,7 @@ class PaperOrder:
         return {
             "id": self.id,
             "strategy": self.strategy.value,
+            "strategy_variant": self.strategy_variant,
             "coin_type": self.coin_type.value,
             "market_slug": self.market_slug,
             "outcome": self.outcome.value,
@@ -132,6 +141,8 @@ class PaperOrder:
             "filled_size": self.filled_size,
             "created_at": self.created_at,
             "updated_at": self.updated_at,
+            "market_start_time": self.market_start_time,
+            "limit_price": self.limit_price,
         }
 
 
@@ -150,6 +161,10 @@ class Trade:
     resolution_time: Optional[float] = None
     result: TradeResult = TradeResult.PENDING
     pnl: float = 0.0
+    # v2.1 additions
+    strategy_variant: str = ""
+    invested: float = 0.0  # size * entry_price
+    market_start_time: int = 0
     
     @classmethod
     def from_order(cls, order: PaperOrder) -> "Trade":
@@ -164,6 +179,9 @@ class Trade:
             size=order.size,
             filled_size=order.filled_size,
             entry_time=order.updated_at,
+            strategy_variant=order.strategy_variant,
+            invested=order.filled_size * order.price,
+            market_start_time=order.market_start_time,
         )
     
     def resolve(self, winning_outcome: Outcome) -> None:
@@ -180,6 +198,7 @@ class Trade:
         return {
             "id": self.id,
             "strategy": self.strategy.value,
+            "strategy_variant": self.strategy_variant,
             "coin_type": self.coin_type.value,
             "market_slug": self.market_slug,
             "outcome": self.outcome.value,
@@ -190,6 +209,8 @@ class Trade:
             "resolution_time": self.resolution_time,
             "result": self.result.value,
             "pnl": self.pnl,
+            "invested": self.invested,
+            "market_start_time": self.market_start_time,
         }
 
 
@@ -253,4 +274,50 @@ class AggregateMetrics:
             "roi": round(self.roi, 1),
             "coins_running": self.coins_running,
             "coins_enabled": self.coins_enabled,
+        }
+
+
+@dataclass
+class VariantMetrics:
+    """Metrics for a specific strategy variant (e.g., undervalued_48)."""
+    variant_name: str  # e.g., "undervalued_48"
+    threshold: float = 0.0  # e.g., 0.48
+    coin_type: Optional[CoinType] = None
+    total_trades: int = 0
+    wins: int = 0
+    losses: int = 0
+    pending: int = 0
+    total_pnl: float = 0.0
+    total_invested: float = 0.0  # aka trading volume
+    
+    @property
+    def win_rate(self) -> float:
+        """Win rate as a percentage."""
+        completed = self.wins + self.losses
+        return (self.wins / completed * 100) if completed > 0 else 0.0
+    
+    @property
+    def roi(self) -> float:
+        """Return on investment as a percentage."""
+        return (self.total_pnl / self.total_invested * 100) if self.total_invested > 0 else 0.0
+    
+    @property
+    def trading_volume(self) -> float:
+        """Alias for total_invested (trading volume = sum of invested amounts)."""
+        return self.total_invested
+    
+    def to_dict(self) -> dict:
+        return {
+            "variant_name": self.variant_name,
+            "threshold": self.threshold,
+            "coin_type": self.coin_type.value if self.coin_type else None,
+            "total_trades": self.total_trades,
+            "wins": self.wins,
+            "losses": self.losses,
+            "pending": self.pending,
+            "win_rate": round(self.win_rate, 1),
+            "total_pnl": round(self.total_pnl, 2),
+            "total_invested": round(self.total_invested, 2),
+            "trading_volume": round(self.trading_volume, 2),
+            "roi": round(self.roi, 1),
         }

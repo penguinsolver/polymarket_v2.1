@@ -671,6 +671,177 @@ button:active {
     }
 }
 
+/* Last 20 Trades Widget Styles */
+.trades-tape {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 16px;
+    background: var(--bg-primary);
+    border-radius: var(--radius-md);
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.trade-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--bg-secondary);
+    border-radius: 9999px;
+    border: 1px solid var(--border);
+    font-size: 0.8rem;
+    transition: all 0.2s;
+}
+
+.trade-pill:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+}
+
+.trade-pill.result-win {
+    border-color: var(--accent-green);
+    background: rgba(16, 185, 129, 0.05);
+}
+
+.trade-pill.result-loss {
+    border-color: var(--accent-red);
+    background: rgba(239, 68, 68, 0.05);
+}
+
+.trade-pill.result-pending {
+    border-color: var(--accent-yellow);
+    background: rgba(234, 179, 8, 0.05);
+}
+
+.pill-coin {
+    font-size: 1rem;
+    font-weight: 700;
+    min-width: 16px;
+    text-align: center;
+}
+
+.pill-variant {
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.pill-outcome {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-blue);
+}
+
+.pill-result {
+    font-weight: 700;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.pill-result.result-win {
+    background: var(--accent-green);
+    color: white;
+}
+
+.pill-result.result-loss {
+    background: var(--accent-red);
+    color: white;
+}
+
+.pill-result.result-pending {
+    background: var(--accent-yellow);
+    color: #1f2937;
+}
+
+.pill-invested {
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+}
+
+.pill-pnl {
+    font-weight: 700;
+}
+
+.pill-pnl.pnl-positive {
+    color: var(--accent-green);
+}
+
+.pill-pnl.pnl-negative {
+    color: var(--accent-red);
+}
+
+/* Entry Window Status */
+.entry-window-status {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+}
+
+.entry-status-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 9999px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.entry-status-indicator.status-waiting {
+    background: rgba(234, 179, 8, 0.1);
+    color: var(--accent-yellow);
+}
+
+.entry-status-indicator.status-active {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--accent-green);
+    animation: pulse-green 2s ease-in-out infinite;
+}
+
+.entry-status-indicator.status-closed {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--accent-red);
+}
+
+@keyframes pulse-green {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+    }
+}
+
+.entry-countdown {
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-align: center;
+    color: var(--text-primary);
+}
+
+/* Variant Row Styling */
+.variant-row {
+    transition: background 0.2s;
+}
+
+.variant-row:hover {
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.variant-row.undervalued td:first-child {
+    color: var(--accent-green);
+}
+
+.variant-row.momentum td:first-child {
+    color: var(--accent-blue);
+}
+
 @media (max-width: 900px) {
 
     .coin-grid,
@@ -678,5 +849,9 @@ button:active {
     .strategy-comparison,
     .grid {
         grid-template-columns: 1fr;
+    }
+
+    .trades-tape {
+        max-height: 300px;
     }
 }

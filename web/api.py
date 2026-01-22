@@ -1,4 +1,4 @@
-"""FastAPI backend for the multi-coin strategy tester v2.0."""
+"""FastAPI backend for the multi-coin strategy tester v2.1."""
 import asyncio
 import time
 from contextlib import asynccontextmanager
@@ -13,7 +13,7 @@ from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
 import sys
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.config import get_config, CoinType, COIN_DISPLAY_NAMES
+from src.config import get_config, CoinType, COIN_DISPLAY_NAMES, UNDERVALUED_THRESHOLDS
 from src.models import StrategyType
 from src.market_tracker import get_market_tracker
 from src.strategy_engine import get_strategy_engine
@@ -34,7 +34,7 @@ async def lifespan(app: FastAPI):
     await clob.close()
 
 
-app = FastAPI(title="Polymarket Strategy Tester v2.0", lifespan=lifespan)
+app = FastAPI(title="Polymarket Strategy Tester v2.1", lifespan=lifespan)
 
 static_dir = Path(__file__).parent / "static"
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
@@ -220,10 +220,12 @@ async def get_metrics(coin: Optional[str] = Query(None)):
             coin_type = CoinType(coin.lower())
             undervalued = engine.get_metrics(coin_type, StrategyType.UNDERVALUED)
             momentum = engine.get_metrics(coin_type, StrategyType.MOMENTUM)
+            coin_engine = engine.get_coin_engine(coin_type)
             return {
                 "coin": coin,
                 "undervalued": undervalued.to_dict(),
                 "momentum": momentum.to_dict(),
+                "trading_volume": coin_engine.get_trading_volume(),
             }
         except ValueError:
             return JSONResponse({"error": f"Invalid coin: {coin}"}, status_code=400)
@@ -231,6 +233,53 @@ async def get_metrics(coin: Optional[str] = Query(None)):
     # Aggregate across all coins
     return {
         "aggregate": engine.get_aggregate_metrics().to_dict(),
+        "trading_volume": engine.get_total_trading_volume(),
+    }
+
+
+@app.get("/api/last-trades")
+async def get_last_trades(
+    limit: int = Query(20, ge=1, le=100),
+    winning_only: bool = Query(False)
+):
+    """Get last N trades across all coins, optionally filtering by winning variants.
+    
+    A 'winning variant' is a strategy variant with net positive P&L.
+    """
+    engine = get_strategy_engine()
+    trades = engine.get_last_trades(limit=limit, winning_only=winning_only)
+    
+    return {
+        "trades": [t.to_dict() for t in trades],
+        "count": len(trades),
+        "winning_only": winning_only,
+    }
+
+
+@app.get("/api/variant-metrics")
+async def get_variant_metrics(coin: Optional[str] = Query(None)):
+    """Get metrics per strategy variant.
+    
+    Returns metrics for each variant (undervalued_49, undervalued_48, etc.).
+    """
+    engine = get_strategy_engine()
+    
+    if coin:
+        try:
+            coin_type = CoinType(coin.lower())
+            coin_engine = engine.get_coin_engine(coin_type)
+            metrics = coin_engine.get_all_variant_metrics()
+            return {
+                "coin": coin,
+                "variants": {k: v.to_dict() for k, v in metrics.items()},
+            }
+        except ValueError:
+            return JSONResponse({"error": f"Invalid coin: {coin}"}, status_code=400)
+    
+    # Aggregate across all coins
+    metrics = engine.get_all_variant_metrics()
+    return {
+        "variants": {k: v.to_dict() for k, v in metrics.items()},
     }
 
 
@@ -465,12 +514,18 @@ async def websocket_endpoint(websocket: WebSocket):
                         "countdown": t1.countdown_to_active(),
                     }
             
+            # Get last trades for dashboard widget
+            last_trades = engine.get_last_trades(limit=10, winning_only=False)
+            
             state = {
                 "timestamp": time.time(),
                 "engine": engine.get_status(),
                 "markets": tracker.get_status(),
                 "prices": prices,
                 "aggregate": engine.get_aggregate_metrics().to_dict(),
+                "variant_metrics": {k: v.to_dict() for k, v in engine.get_all_variant_metrics().items()},
+                "trading_volume": engine.get_total_trading_volume(),
+                "last_trades": [t.to_dict() for t in last_trades],
             }
             
             await websocket.send_json(state)
@@ -521,6 +576,8 @@ async def coin_websocket_endpoint(websocket: WebSocket, coin: str):
                     "undervalued": coin_engine.get_metrics(StrategyType.UNDERVALUED).to_dict(),
                     "momentum": coin_engine.get_metrics(StrategyType.MOMENTUM).to_dict(),
                 },
+                "variant_metrics": {k: v.to_dict() for k, v in coin_engine.get_all_variant_metrics().items()},
+                "trading_volume": coin_engine.get_trading_volume(),
                 "orders": [o.to_dict() for o in coin_engine.get_orders(limit=8)],
                 "orders_total": len(coin_engine.get_all_orders()),
                 "trades": [t.to_dict() for t in coin_engine.get_trades(limit=8)],
@@ -535,6 +592,6 @@ async def coin_websocket_endpoint(websocket: WebSocket, coin: str):
 
 
 if __name__ == "__main__":
-    print("Starting Polymarket Strategy Tester v2.0 on port 8002...")
+    print("Starting Polymarket Strategy Tester v2.1 on port 8002...")
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8002)

@@ -1,4 +1,4 @@
-# Polymarket Strategy Tester v2.0
+# Polymarket Strategy Tester v2.1
 
 Multi-coin paper trading dashboard for Polymarket 15-minute crypto markets.
 

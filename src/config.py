@@ -41,18 +41,25 @@ class CoinConfig:
     running: bool = False
 
 
+# Strategy variant thresholds for undervalued strategy
+UNDERVALUED_THRESHOLDS = [0.49, 0.48, 0.47, 0.46]
+
+# Strategy variant thresholds for momentum strategy
+MOMENTUM_THRESHOLDS = [0.51, 0.52, 0.53, 0.54]
+
+
 @dataclass
 class Config:
     """Application configuration."""
     
     # Strategy thresholds
-    undervalued_threshold: float = 0.48
     momentum_threshold: float = 0.52
     order_size: float = 10.0
     
-    # Timing (in seconds relative to market start)
-    entry_countdown: int = 1200   # 20 minutes before market starts
-    exit_countdown: int = 930     # 15 min 30 sec before market starts
+    # Entry window timing (in seconds relative to market start countdown)
+    # Orders allowed when countdown is between entry_window_start and entry_window_end
+    entry_window_start: int = 1230   # 20 minutes 30 seconds = 20:30
+    entry_window_end: int = 930      # 15 minutes 30 seconds = 15:30
     
     # Paper trading
     paper_mode: bool = True
@@ -82,11 +89,10 @@ class Config:
             load_dotenv(env_path)
         
         config = cls(
-            undervalued_threshold=float(os.getenv("UNDERVALUED_THRESHOLD", "0.48")),
             momentum_threshold=float(os.getenv("MOMENTUM_THRESHOLD", "0.52")),
             order_size=float(os.getenv("ORDER_SIZE_SHARES", "10")),
-            entry_countdown=int(os.getenv("ENTRY_COUNTDOWN_SECONDS", "1200")),
-            exit_countdown=int(os.getenv("EXIT_COUNTDOWN_SECONDS", "930")),
+            entry_window_start=int(os.getenv("ENTRY_WINDOW_START", "1230")),
+            entry_window_end=int(os.getenv("ENTRY_WINDOW_END", "930")),
             paper_mode=os.getenv("PAPER_MODE", "true").lower() == "true",
             sim_fill_probability=float(os.getenv("SIM_FILL_PROBABILITY", "0.7")),
             log_level=os.getenv("LOG_LEVEL", "INFO"),

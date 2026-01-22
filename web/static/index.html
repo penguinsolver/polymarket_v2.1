@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Polymarket Strategy Tester v2.0</title>
+    <title>Polymarket Strategy Tester v2.1</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 
@@ -13,7 +13,7 @@
         <header>
             <div style="display: flex; align-items: center;">
                 <h1>📊 Polymarket Strategy Tester</h1>
-                <span class="version-badge">v2.0</span>
+                <span class="version-badge">v2.1</span>
             </div>
             <div class="controls">
                 <span class="runtime" id="runtime">00:00:00</span>
@@ -35,6 +35,10 @@
             <div class="metric-card">
                 <div class="metric-value" id="total-roi">0%</div>
                 <div class="metric-label">ROI</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="trading-volume">$0.00</div>
+                <div class="metric-label">Trading Volume</div>
             </div>
             <div class="metric-card">
                 <div class="metric-value" id="bots-running">0/4</div>
@@ -241,6 +245,22 @@
                 <a href="/xrp" class="coin-link" style="margin-top: 15px;">View Dashboard →</a>
             </div>
         </div>
+
+        <!-- Last 10 Trades Widget -->
+        <div class="card" style="margin-top: 30px;">
+            <div class="section-header">
+                <div class="card-title" style="margin-bottom: 0;">📊 Last 10 Trades (Predicted vs True)</div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <label class="toggle-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="winning-only-toggle" onchange="toggleWinningFilter(this.checked)">
+                        <span style="font-size: 0.85rem; color: var(--text-secondary);">Winning Only</span>
+                    </label>
+                </div>
+            </div>
+            <div class="trades-tape" id="last-trades-container">
+                <div class="empty-state">No trades yet. Start the bots to begin testing.</div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -275,6 +295,11 @@
 
                 document.getElementById('total-roi').textContent = `${data.aggregate.roi}%`;
                 document.getElementById('bots-running').textContent = `${data.aggregate.coins_running}/${data.aggregate.coins_enabled}`;
+            }
+
+            // Update trading volume
+            if (data.trading_volume !== undefined) {
+                document.getElementById('trading-volume').textContent = `$${data.trading_volume.toFixed(2)}`;
             }
 
             // Update runtime
@@ -332,6 +357,60 @@
                     }
                 }
             });
+
+            // Update Last 10 Trades widget
+            if (data.last_trades) {
+                updateLastTrades(data.last_trades);
+            }
+        }
+
+        function updateLastTrades(trades) {
+            const container = document.getElementById('last-trades-container');
+
+            if (!trades || trades.length === 0) {
+                container.innerHTML = '<div class="empty-state">No trades yet. Start the bots to begin testing.</div>';
+                return;
+            }
+
+            const coinIcons = {
+                'btc': '₿',
+                'eth': 'Ξ',
+                'sol': '◎',
+                'xrp': '✕'
+            };
+
+            container.innerHTML = trades.map(trade => {
+                const resultClass = trade.result === 'win' ? 'result-win' :
+                    trade.result === 'loss' ? 'result-loss' : 'result-pending';
+                const pnlClass = trade.pnl >= 0 ? 'pnl-positive' : 'pnl-negative';
+                const outcomeLabel = trade.outcome === 'Up' ? '↑ UP' : '↓ DOWN';
+                const resultLabel = trade.result.toUpperCase();
+                const coinIcon = coinIcons[trade.coin_type] || trade.coin_type.toUpperCase();
+
+                return `
+                    <div class="trade-pill ${resultClass}">
+                        <span class="pill-coin">${coinIcon}</span>
+                        <span class="pill-variant">${trade.strategy_variant || trade.strategy}</span>
+                        <span class="pill-outcome">${outcomeLabel}</span>
+                        <span class="pill-result ${resultClass}">${resultLabel}</span>
+                        <span class="pill-invested">$${trade.invested.toFixed(2)}</span>
+                        <span class="pill-pnl ${pnlClass}">$${trade.pnl.toFixed(2)}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        let winningOnlyFilter = false;
+
+        async function toggleWinningFilter(enabled) {
+            winningOnlyFilter = enabled;
+            try {
+                const response = await fetch(`/api/last-trades?limit=20&winning_only=${enabled}`);
+                const data = await response.json();
+                updateLastTrades(data.trades);
+            } catch (error) {
+                console.error('Error fetching last trades:', error);
+            }
         }
 
         function updateRuntime() {

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BTC Dashboard - Polymarket Strategy Tester v2.0</title>
+    <title>BTC Dashboard - Polymarket Strategy Tester v2.1</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 
@@ -35,9 +35,22 @@
                         <span class="market-label">Slug</span>
                         <span class="market-value" id="market-slug">--</span>
                     </div>
+                    <!-- Polymarket-style countdown (like T+1 17:56) -->
                     <div class="countdown" id="countdown">--:--</div>
-                    <div style="text-align: center; color: var(--text-secondary); font-size: 0.85rem;">until entry
-                        window closes</div>
+                    <div
+                        style="text-align: center; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 10px;">
+                        Market Countdown (T+1)</div>
+
+                    <!-- Entry Window Status -->
+                    <div class="entry-window-status">
+                        <div class="entry-status-indicator" id="entry-status">
+                            <span class="status-icon" id="entry-icon">⏸️</span>
+                            <span class="status-text" id="entry-text">Waiting</span>
+                        </div>
+                        <div class="entry-countdown" id="entry-window-countdown">--:--</div>
+                        <div style="text-align: center; color: var(--text-secondary); font-size: 0.75rem;">Entry Window
+                            (5 min)</div>
+                    </div>
                 </div>
             </div>
 
@@ -78,54 +91,116 @@
             </div>
         </div>
 
-        <!-- Strategy Comparison -->
-        <h2 class="section-title" style="margin-bottom: 20px;">Strategy Comparison</h2>
-        <div class="strategy-comparison">
-            <div class="strategy-card undervalued">
-                <div class="strategy-name">📉 Strategy A: Undervalued</div>
-                <div class="strategy-desc">Buy when price ≤ $0.48 (market mispricing)</div>
-                <div class="metric-grid">
-                    <div class="metric">
-                        <div class="metric-value" id="undervalued-trades">0</div>
-                        <div class="metric-label">Trades</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-value" id="undervalued-winrate">0%</div>
-                        <div class="metric-label">Win Rate</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-value" id="undervalued-pnl">$0.00</div>
-                        <div class="metric-label">P&L</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-value" id="undervalued-roi">0%</div>
-                        <div class="metric-label">ROI</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="strategy-card momentum">
-                <div class="strategy-name">📈 Strategy B: Momentum</div>
-                <div class="strategy-desc">Buy when price ≥ $0.52 (follow smart money)</div>
-                <div class="metric-grid">
-                    <div class="metric">
-                        <div class="metric-value" id="momentum-trades">0</div>
-                        <div class="metric-label">Trades</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-value" id="momentum-winrate">0%</div>
-                        <div class="metric-label">Win Rate</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-value" id="momentum-pnl">$0.00</div>
-                        <div class="metric-label">P&L</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-value" id="momentum-roi">0%</div>
-                        <div class="metric-label">ROI</div>
-                    </div>
-                </div>
-            </div>
+        <!-- Strategy Comparison - All 8 Variants -->
+        <h2 class="section-title" style="margin-bottom: 20px;">Strategy Comparison (8 Variants)</h2>
+        <div class="card">
+            <table class="trades-table" id="variants-table">
+                <thead>
+                    <tr>
+                        <th>Strategy</th>
+                        <th>Threshold</th>
+                        <th>Trades</th>
+                        <th>Wins</th>
+                        <th>Losses</th>
+                        <th>Win Rate</th>
+                        <th>P&L</th>
+                        <th>Volume</th>
+                        <th>ROI</th>
+                    </tr>
+                </thead>
+                <tbody id="variants-body">
+                    <!-- Undervalued variants -->
+                    <tr class="variant-row undervalued">
+                        <td>📉 Undervalued</td>
+                        <td>≤ $0.49</td>
+                        <td id="undervalued_49-trades">0</td>
+                        <td id="undervalued_49-wins">0</td>
+                        <td id="undervalued_49-losses">0</td>
+                        <td id="undervalued_49-winrate">0%</td>
+                        <td id="undervalued_49-pnl">$0.00</td>
+                        <td id="undervalued_49-volume">$0.00</td>
+                        <td id="undervalued_49-roi">0%</td>
+                    </tr>
+                    <tr class="variant-row undervalued">
+                        <td>📉 Undervalued</td>
+                        <td>≤ $0.48</td>
+                        <td id="undervalued_48-trades">0</td>
+                        <td id="undervalued_48-wins">0</td>
+                        <td id="undervalued_48-losses">0</td>
+                        <td id="undervalued_48-winrate">0%</td>
+                        <td id="undervalued_48-pnl">$0.00</td>
+                        <td id="undervalued_48-volume">$0.00</td>
+                        <td id="undervalued_48-roi">0%</td>
+                    </tr>
+                    <tr class="variant-row undervalued">
+                        <td>📉 Undervalued</td>
+                        <td>≤ $0.47</td>
+                        <td id="undervalued_47-trades">0</td>
+                        <td id="undervalued_47-wins">0</td>
+                        <td id="undervalued_47-losses">0</td>
+                        <td id="undervalued_47-winrate">0%</td>
+                        <td id="undervalued_47-pnl">$0.00</td>
+                        <td id="undervalued_47-volume">$0.00</td>
+                        <td id="undervalued_47-roi">0%</td>
+                    </tr>
+                    <tr class="variant-row undervalued">
+                        <td>📉 Undervalued</td>
+                        <td>≤ $0.46</td>
+                        <td id="undervalued_46-trades">0</td>
+                        <td id="undervalued_46-wins">0</td>
+                        <td id="undervalued_46-losses">0</td>
+                        <td id="undervalued_46-winrate">0%</td>
+                        <td id="undervalued_46-pnl">$0.00</td>
+                        <td id="undervalued_46-volume">$0.00</td>
+                        <td id="undervalued_46-roi">0%</td>
+                    </tr>
+                    <!-- Momentum variants -->
+                    <tr class="variant-row momentum">
+                        <td>📈 Momentum</td>
+                        <td>≥ $0.51</td>
+                        <td id="momentum_51-trades">0</td>
+                        <td id="momentum_51-wins">0</td>
+                        <td id="momentum_51-losses">0</td>
+                        <td id="momentum_51-winrate">0%</td>
+                        <td id="momentum_51-pnl">$0.00</td>
+                        <td id="momentum_51-volume">$0.00</td>
+                        <td id="momentum_51-roi">0%</td>
+                    </tr>
+                    <tr class="variant-row momentum">
+                        <td>📈 Momentum</td>
+                        <td>≥ $0.52</td>
+                        <td id="momentum_52-trades">0</td>
+                        <td id="momentum_52-wins">0</td>
+                        <td id="momentum_52-losses">0</td>
+                        <td id="momentum_52-winrate">0%</td>
+                        <td id="momentum_52-pnl">$0.00</td>
+                        <td id="momentum_52-volume">$0.00</td>
+                        <td id="momentum_52-roi">0%</td>
+                    </tr>
+                    <tr class="variant-row momentum">
+                        <td>📈 Momentum</td>
+                        <td>≥ $0.53</td>
+                        <td id="momentum_53-trades">0</td>
+                        <td id="momentum_53-wins">0</td>
+                        <td id="momentum_53-losses">0</td>
+                        <td id="momentum_53-winrate">0%</td>
+                        <td id="momentum_53-pnl">$0.00</td>
+                        <td id="momentum_53-volume">$0.00</td>
+                        <td id="momentum_53-roi">0%</td>
+                    </tr>
+                    <tr class="variant-row momentum">
+                        <td>📈 Momentum</td>
+                        <td>≥ $0.54</td>
+                        <td id="momentum_54-trades">0</td>
+                        <td id="momentum_54-wins">0</td>
+                        <td id="momentum_54-losses">0</td>
+                        <td id="momentum_54-winrate">0%</td>
+                        <td id="momentum_54-pnl">$0.00</td>
+                        <td id="momentum_54-volume">$0.00</td>
+                        <td id="momentum_54-roi">0%</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
         <!-- Open Orders -->
@@ -148,11 +223,12 @@
                             <th>Filled/Size</th>
                             <th>Status</th>
                             <th>Created At</th>
+                            <th>Market Time</th>
                         </tr>
                     </thead>
                     <tbody id="orders-body">
                         <tr>
-                            <td colspan="7" class="empty-state">No orders.</td>
+                            <td colspan="8" class="empty-state">No orders.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -184,11 +260,12 @@
                             <th>Filled At</th>
                             <th>Result</th>
                             <th>P&L</th>
+                            <th>Market Time</th>
                         </tr>
                     </thead>
                     <tbody id="trades-body">
                         <tr>
-                            <td colspan="8" class="empty-state">No trades yet. Start the engine to begin testing.</td>
+                            <td colspan="9" class="empty-state">No trades yet. Start the engine to begin testing.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -230,7 +307,7 @@
             updateEngineStatus(data.engine);
             updateMarkets(data.markets);
             updatePrices(data.prices);
-            updateMetrics(data.metrics);
+            updateVariantMetrics(data.variant_metrics);
             updateOrders(data.orders || [], data.orders_total || 0);
             updateTrades(data.trades || [], data.trades_total || 0);
         }
@@ -286,8 +363,47 @@
                 const countdown = t1.countdown_to_active || 0;
                 const minutes = Math.floor(countdown / 60);
                 const seconds = countdown % 60;
+
+                // Display market countdown (Polymarket-style)
                 document.getElementById('countdown').textContent =
                     `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                // Entry window constants (in seconds)
+                const ENTRY_START = 1230;  // 20:30
+                const ENTRY_END = 930;     // 15:30
+                const WINDOW_DURATION = ENTRY_START - ENTRY_END; // 5 minutes = 300s
+
+                // Calculate entry window countdown and status
+                const entryIcon = document.getElementById('entry-icon');
+                const entryText = document.getElementById('entry-text');
+                const entryCountdown = document.getElementById('entry-window-countdown');
+                const entryStatus = document.getElementById('entry-status');
+
+                if (countdown > ENTRY_START) {
+                    // Waiting for entry window to open
+                    const timeUntilOpen = countdown - ENTRY_START;
+                    const waitMins = Math.floor(timeUntilOpen / 60);
+                    const waitSecs = timeUntilOpen % 60;
+                    entryIcon.textContent = '⏸️';
+                    entryText.textContent = 'Waiting';
+                    entryCountdown.textContent = `${waitMins.toString().padStart(2, '0')}:${waitSecs.toString().padStart(2, '0')}`;
+                    entryStatus.className = 'entry-status-indicator status-waiting';
+                } else if (countdown >= ENTRY_END && countdown <= ENTRY_START) {
+                    // INSIDE entry window - placing orders
+                    const timeRemaining = countdown - ENTRY_END;
+                    const windowMins = Math.floor(timeRemaining / 60);
+                    const windowSecs = timeRemaining % 60;
+                    entryIcon.textContent = '🟢';
+                    entryText.textContent = 'Placing Orders';
+                    entryCountdown.textContent = `${windowMins.toString().padStart(2, '0')}:${windowSecs.toString().padStart(2, '0')}`;
+                    entryStatus.className = 'entry-status-indicator status-active';
+                } else {
+                    // Entry window closed
+                    entryIcon.textContent = '🔴';
+                    entryText.textContent = 'Window Closed';
+                    entryCountdown.textContent = '00:00';
+                    entryStatus.className = 'entry-status-indicator status-closed';
+                }
             }
         }
 
@@ -304,49 +420,84 @@
             document.getElementById('sum-price').textContent = prices.sum ? `$${prices.sum.toFixed(2)}` : '$--';
         }
 
-        function updateMetrics(metrics) {
-            if (!metrics) return;
+        function updateVariantMetrics(variantMetrics) {
+            if (!variantMetrics) return;
 
-            const u = metrics.undervalued;
-            if (u) {
-                document.getElementById('undervalued-trades').textContent = u.total_trades;
-                document.getElementById('undervalued-winrate').textContent = `${u.win_rate}%`;
-                const pnlEl = document.getElementById('undervalued-pnl');
-                pnlEl.textContent = `$${u.total_pnl.toFixed(2)}`;
-                pnlEl.className = 'metric-value ' + (u.total_pnl >= 0 ? 'pnl-positive' : 'pnl-negative');
-                document.getElementById('undervalued-roi').textContent = `${u.roi}%`;
-            }
+            // All 8 variants to update
+            const variants = [
+                'undervalued_49', 'undervalued_48', 'undervalued_47', 'undervalued_46',
+                'momentum_51', 'momentum_52', 'momentum_53', 'momentum_54'
+            ];
 
-            const m = metrics.momentum;
-            if (m) {
-                document.getElementById('momentum-trades').textContent = m.total_trades;
-                document.getElementById('momentum-winrate').textContent = `${m.win_rate}%`;
-                const pnlEl = document.getElementById('momentum-pnl');
-                pnlEl.textContent = `$${m.total_pnl.toFixed(2)}`;
-                pnlEl.className = 'metric-value ' + (m.total_pnl >= 0 ? 'pnl-positive' : 'pnl-negative');
-                document.getElementById('momentum-roi').textContent = `${m.roi}%`;
-            }
+            variants.forEach(variant => {
+                const v = variantMetrics[variant];
+                if (!v) return;
+
+                const setEl = (suffix, value) => {
+                    const el = document.getElementById(`${variant}-${suffix}`);
+                    if (el) el.textContent = value;
+                };
+
+                setEl('trades', v.total_trades);
+                setEl('wins', v.wins);
+                setEl('losses', v.losses);
+                setEl('winrate', `${v.win_rate}%`);
+                setEl('volume', `$${v.total_invested.toFixed(2)}`);
+                setEl('roi', `${v.roi}%`);
+
+                // P&L with color
+                const pnlEl = document.getElementById(`${variant}-pnl`);
+                if (pnlEl) {
+                    pnlEl.textContent = `$${v.total_pnl.toFixed(2)}`;
+                    pnlEl.className = v.total_pnl >= 0 ? 'pnl-positive' : 'pnl-negative';
+                }
+            });
         }
 
         function updateOrders(orders, total) {
             const tbody = document.getElementById('orders-body');
             const toggleBtn = document.getElementById('orders-toggle');
             const info = document.getElementById('orders-info');
+            const container = document.getElementById('orders-container');
+
+            // If expanded and total changed, refetch all orders
+            if (showAllOrders && total !== ordersTotal) {
+                ordersTotal = total;
+                fetchAllOrders();
+                return;
+            }
+
+            // If expanded, don't update from limited WebSocket data
+            if (showAllOrders) {
+                // Just update the info text with current total
+                info.textContent = `Showing all ${ordersTotal} orders`;
+                return;
+            }
+
             ordersTotal = total;
 
             if (!orders || orders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="empty-state">No orders.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="empty-state">No orders.</td></tr>`;
                 toggleBtn.style.display = 'none';
                 info.textContent = '';
                 return;
             }
 
+            renderOrdersTable(orders, total);
+            info.textContent = `Showing ${orders.length} of ${total} orders`;
+            toggleBtn.style.display = total > 8 ? 'block' : 'none';
+            toggleBtn.textContent = 'Show All Orders ▼';
+        }
+
+        function renderOrdersTable(orders, total) {
+            const tbody = document.getElementById('orders-body');
             tbody.innerHTML = orders.map(order => {
                 const statusClass = order.status === 'filled' ? 'result-win' :
                     order.status === 'open' ? 'result-pending' : 'result-loss';
                 const createdTime = order.created_at ? new Date(order.created_at * 1000).toLocaleTimeString() : '--';
                 const marketShort = order.market_slug ? order.market_slug.slice(-10) : '--';
                 const filledPct = order.size > 0 ? Math.round((order.filled_size / order.size) * 100) : 0;
+                const marketTime = order.market_time || formatMarketTime(order.market_slug);
 
                 return `
                     <tr>
@@ -357,28 +508,49 @@
                         <td>${order.filled_size}/${order.size} (${filledPct}%)</td>
                         <td class="${statusClass}">${order.status.toUpperCase()}</td>
                         <td>${createdTime}</td>
+                        <td>${marketTime}</td>
                     </tr>
                 `;
             }).join('');
-
-            info.textContent = `Showing ${orders.length} of ${total} orders`;
-            toggleBtn.style.display = total > 8 ? 'block' : 'none';
-            toggleBtn.textContent = showAllOrders ? 'Show Less ▲' : 'Show All Orders ▼';
         }
 
         function updateTrades(trades, total) {
             const tbody = document.getElementById('trades-body');
             const toggleBtn = document.getElementById('trades-toggle');
             const info = document.getElementById('trades-info');
+            const container = document.getElementById('trades-container');
+
+            // If expanded and total changed, refetch all trades
+            if (showAllTrades && total !== tradesTotal) {
+                tradesTotal = total;
+                fetchAllTrades();
+                return;
+            }
+
+            // If expanded, don't update from limited WebSocket data
+            if (showAllTrades) {
+                // Just update the info text with current total
+                info.textContent = `Showing all ${tradesTotal} trades`;
+                return;
+            }
+
             tradesTotal = total;
 
             if (!trades || trades.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="empty-state">No trades yet. Start the engine to begin testing.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="9" class="empty-state">No trades yet. Start the engine to begin testing.</td></tr>`;
                 toggleBtn.style.display = 'none';
                 info.textContent = '';
                 return;
             }
 
+            renderTradesTable(trades, total);
+            info.textContent = `Showing ${trades.length} of ${total} trades`;
+            toggleBtn.style.display = total > 8 ? 'block' : 'none';
+            toggleBtn.textContent = 'Show All Trades ▼';
+        }
+
+        function renderTradesTable(trades, total) {
+            const tbody = document.getElementById('trades-body');
             tbody.innerHTML = trades.map(trade => {
                 const resultClass = trade.result === 'win' ? 'result-win' :
                     trade.result === 'loss' ? 'result-loss' : 'result-pending';
@@ -388,6 +560,7 @@
                     ? `${trade.filled_size}/${trade.size}`
                     : `${trade.size}`;
                 const marketShort = trade.market_slug ? trade.market_slug.slice(-10) : '--';
+                const marketTime = trade.market_time || formatMarketTime(trade.market_slug);
 
                 return `
                     <tr>
@@ -399,38 +572,84 @@
                         <td>${fillTime}</td>
                         <td class="${resultClass}">${trade.result.toUpperCase()}</td>
                         <td class="${pnlClass}">$${trade.pnl.toFixed(2)}</td>
+                        <td>${marketTime}</td>
                     </tr>
                 `;
             }).join('');
+        }
 
-            info.textContent = `Showing ${trades.length} of ${total} trades`;
-            toggleBtn.style.display = total > 8 ? 'block' : 'none';
-            toggleBtn.textContent = showAllTrades ? 'Show Less ▲' : 'Show All Trades ▼';
+        function formatMarketTime(marketSlug) {
+            if (!marketSlug) return '--';
+            try {
+                const parts = marketSlug.split('-');
+                const timestamp = parseInt(parts[parts.length - 1]);
+                if (isNaN(timestamp)) return '--';
+
+                const start = new Date(timestamp * 1000);
+                const end = new Date((timestamp + 900) * 1000);
+
+                const options = { month: 'short', day: 'numeric' };
+                const timeOptions = { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/New_York' };
+
+                const dateStr = start.toLocaleDateString('en-US', options);
+                const startTime = start.toLocaleTimeString('en-US', timeOptions);
+                const endTime = end.toLocaleTimeString('en-US', timeOptions);
+
+                return `${dateStr}, ${startTime}–${endTime} ET`;
+            } catch (e) {
+                return '--';
+            }
+        }
+
+        async function fetchAllOrders() {
+            try {
+                const response = await fetch(`/api/orders?coin=${COIN}`);
+                const data = await response.json();
+                renderOrdersTable(data.orders, data.total);
+                document.getElementById('orders-info').textContent = `Showing all ${data.total} orders`;
+            } catch (error) {
+                console.error('Error fetching all orders:', error);
+            }
+        }
+
+        async function fetchAllTrades() {
+            try {
+                const response = await fetch(`/api/trades?coin=${COIN}`);
+                const data = await response.json();
+                renderTradesTable(data.trades, data.total);
+                document.getElementById('trades-info').textContent = `Showing all ${data.total} trades`;
+            } catch (error) {
+                console.error('Error fetching all trades:', error);
+            }
         }
 
         async function toggleOrders() {
             showAllOrders = !showAllOrders;
             const container = document.getElementById('orders-container');
+            const toggleBtn = document.getElementById('orders-toggle');
             container.classList.toggle('collapsed', !showAllOrders);
 
             if (showAllOrders) {
-                // Fetch all orders
-                const response = await fetch(`/api/orders?coin=${COIN}`);
-                const data = await response.json();
-                updateOrders(data.orders, data.total);
+                toggleBtn.textContent = 'Show Less ▲';
+                await fetchAllOrders();
+            } else {
+                toggleBtn.textContent = 'Show All Orders ▼';
+                // Will be updated on next WebSocket message
             }
         }
 
         async function toggleTrades() {
             showAllTrades = !showAllTrades;
             const container = document.getElementById('trades-container');
+            const toggleBtn = document.getElementById('trades-toggle');
             container.classList.toggle('collapsed', !showAllTrades);
 
             if (showAllTrades) {
-                // Fetch all trades
-                const response = await fetch(`/api/trades?coin=${COIN}`);
-                const data = await response.json();
-                updateTrades(data.trades, data.total);
+                toggleBtn.textContent = 'Show Less ▲';
+                await fetchAllTrades();
+            } else {
+                toggleBtn.textContent = 'Show All Trades ▼';
+                // Will be updated on next WebSocket message
             }
         }
 
